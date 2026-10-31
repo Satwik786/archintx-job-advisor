@@ -15,9 +15,9 @@ Full-stack internship capstone: candidates browse jobs, apply by pasting resume 
 |---|---|
 | Frontend | React 18, Vite, JavaScript, Tailwind CSS 3, React Router 6, lucide-react |
 | Backend | Python, FastAPI, Pydantic v2, SQLAlchemy 2, PyJWT, bcrypt |
-| Database | PostgreSQL (Supabase/Neon) in production, SQLite for tests/quick local runs |
+| Database | PostgreSQL (Neon) in production, SQLite for tests/quick local runs |
 | Tests | pytest (backend), Vitest + Testing Library (frontend) |
-| Hosting | Vercel (frontend), Render (backend), Supabase or Neon (DB) |
+| Hosting | Vercel (frontend), Render (backend), Neon (DB) |
 
 **Why PostgreSQL?** Relational data (jobs -> applications), real foreign keys and constraints, a free hosted tier, and it is what production tools use.
 
