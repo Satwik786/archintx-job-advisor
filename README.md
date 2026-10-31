@@ -2,6 +2,17 @@
 
 Full-stack internship capstone: candidates browse jobs, apply by pasting resume text, and instantly see a **server-computed match score**, the required skills **found** in their resume and the ones to **pick up**. Staff log in to create/edit jobs and review every application.
 
+## Live deployment
+| | URL |
+|---|---|
+| Frontend (Vercel) | https://archintx-job-advisor.vercel.app |
+| Backend API (Render) | https://archintx-api.onrender.com |
+| API docs (Swagger) | https://archintx-api.onrender.com/docs |
+| Source code | https://github.com/Satwik786/archintx-job-advisor |
+
+Database: Neon PostgreSQL (Singapore). Staff test login: email `staff@example.com`; the password is supplied in the submission form, not in this repository.
+Note: the backend runs on Render's free tier and sleeps when idle. The first request after a quiet period can take up to ~50 s; the site shows a "Waking up the server" message and retries automatically.
+
 ## Features
 - Public jobs list (title, track, required skills) loaded from the API
 - Apply form with validation, double-submit protection, and a job selector
@@ -124,7 +135,7 @@ Example - job `[Python, FastAPI, PostgreSQL, Git, REST API]`, resume "I have bui
 ## Testing
 ```bash
 cd backend && pytest -q          # 21 tests: matching, auth, jobs, applications, protected routes, hashing
-cd frontend && npm test          # 23 tests: jobs/empty/error, form validation, submit + result, login, protected routes,
+cd frontend && npm test          # 27 tests: jobs/empty/error, form validation, submit + result, login, protected routes,
                                  #           job create/edit/close, applications list, XSS-escaping, expired session
 cd frontend && npm run build     # production build check
 ```
@@ -133,10 +144,17 @@ Frontend tests render the real components and real `api.js` and stub only `fetch
 ## Deployment
 Order: **database -> backend -> frontend -> update CORS**.
 1. **Database:** create a free Supabase or Neon project; copy the Postgres connection string.
-2. **Backend (Render):** New -> Blueprint -> select this repo (uses `render.yaml`), or create a Web Service manually with root dir `backend`, build `pip install -r requirements.txt && python -m app.database.seed`, start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`. Set env vars `DATABASE_URL`, `JWT_SECRET`, `SEED_STAFF_EMAIL`, `SEED_STAFF_PASSWORD`, `CORS_ORIGINS` (temporarily `http://localhost:5173`). Note the URL, e.g. `https://archintx-api.onrender.com`; check `/health` and `/jobs`. (Free Render services sleep when idle, so the first request can take ~50 s: open `/health` before submitting.)
-3. **Frontend (Vercel):** Import the repo, set **Root Directory = `frontend`**, framework Vite, add env var `VITE_API_URL=https://<your-render-url>` (no trailing slash), deploy.
-4. **CORS:** set the backend `CORS_ORIGINS` to your exact Vercel URL (no trailing slash; comma-separate extra origins) and redeploy the backend.
-5. **Verify** the deployed site calls the deployed API: open DevTools -> Network on the live site and confirm requests go to the Render URL, never `localhost`.
+2. **Seed the hosted database once, from your PC** (idempotent; creates tables, 5 jobs and the staff account). In PowerShell, from `backend/` with the venv active:
+   ```powershell
+   $env:DATABASE_URL = '<your Neon connection string>'   # single quotes; this lasts for this window only
+   python -m app.database.seed
+   Remove-Item Env:DATABASE_URL
+   ```
+   Set `SEED_STAFF_EMAIL` / `SEED_STAFF_PASSWORD` in `backend/.env` first so the evaluation account uses a strong password.
+3. **Backend (Render):** New -> Web Service -> select this repo. Root directory `backend`, runtime Python 3, region next to the database, instance type Free. Build `pip install -r requirements.txt && python -m app.database.init_db` (creates any missing tables; it does not re-seed), start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, health check path `/health`. Env vars: `PYTHON_VERSION=3.12.7`, `DATABASE_URL`, `JWT_SECRET` (generate a fresh one), `JWT_EXPIRE_MINUTES=60`, `CORS_ORIGINS` (temporarily `http://localhost:5173`). Check `/health` and `/jobs` on the Render URL. (`render.yaml` describes the same service for Blueprint users.)
+4. **Frontend (Vercel):** Import the repo, set **Root Directory = `frontend`**, framework Vite, add env var `VITE_API_URL=https://<your-render-url>` (no trailing slash), deploy.
+5. **CORS:** set the backend `CORS_ORIGINS` to your exact Vercel URL (no trailing slash; comma-separate extra origins) and redeploy the backend.
+6. **Verify** the deployed site calls the deployed API: open DevTools -> Network on the live site and confirm requests go to the Render URL, never `localhost`.
 
 ## Known limitations
 - Exact-keyword matching only (see above); resume text only, no PDF upload.
