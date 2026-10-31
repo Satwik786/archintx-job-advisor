@@ -1,4 +1,5 @@
 import { screen, waitFor, within } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { JOB, mockApi, renderAt, signIn } from './helpers'
 
@@ -144,6 +145,18 @@ describe('applications list', () => {
     const pre = container.querySelector('pre')
     expect(pre.textContent).toContain('<script>alert(2)</script>')
     expect(container.querySelector('pre script, pre img')).toBeNull()
+  })
+  it('scrolls the applications panel into view when a job is selected', async () => {
+    signIn()
+    const scroll = vi.fn()
+    Element.prototype.scrollIntoView = scroll
+    mockApi(dash({ 'GET /admin/applications?job_id=1': [] }))
+    renderAt('/admin')
+    expect(scroll).not.toHaveBeenCalled()
+    await userEvent.click(await screen.findByRole('button', { name: /view applications for/i }))
+    await screen.findByText(/no applications yet/i)
+    expect(scroll).toHaveBeenCalledTimes(1)
+    delete Element.prototype.scrollIntoView
   })
   it('shows an empty state when there are no applications', async () => {
     signIn()

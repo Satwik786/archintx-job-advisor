@@ -9,7 +9,7 @@ export default function JobsPage() {
   return (
     <>
       <section className="mb-8">
-        <h1 className="text-3xl font-bold text-brand-900">Open positions</h1>
+        <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">Open positions</h1>
         <p className="mt-2 max-w-2xl text-slate-600">Apply with your resume and instantly see which required skills you already show and which ones to pick up.</p>
       </section>
       {loading && <Spinner label="Loading jobs…" />}

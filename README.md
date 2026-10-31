@@ -47,7 +47,8 @@ Python 3.11+ (3.12 used), Node 18+ (22 used), Git, and a PostgreSQL database (op
 ```bash
 # Backend
 cd backend
-python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\Activate.ps1     # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env        # then edit: set JWT_SECRET, SEED_STAFF_PASSWORD, DATABASE_URL (or delete it to use SQLite)
 python -m app.database.seed # creates tables, 5 jobs, 1 staff account

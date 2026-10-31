@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Briefcase, FileText, Pencil, Plus, Users } from 'lucide-react'
 import { api } from '../services/api'
 import { useAsync } from '../hooks/useAsync'
@@ -16,9 +16,20 @@ function Stat({ icon: Icon, label, value }) {
 
 function ApplicationsPanel({ job }) {
   const { data: apps, error, loading, reload } = useAsync(() => api.adminApplications(job.id), [job.id])
+  const sectionRef = useRef(null)
+  const headingRef = useRef(null)
+
+  // Bring the panel into view when a job is selected (it renders below the jobs list,
+  // which is off-screen on phones). Keyed on job.id so saving an edit does not re-scroll.
+  useEffect(() => {
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    sectionRef.current?.scrollIntoView?.({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+    headingRef.current?.focus({ preventScroll: true }) // announce the new section to screen readers
+  }, [job.id])
+
   return (
-    <section className="mt-8" aria-labelledby="apps-h">
-      <h2 id="apps-h" className="mb-3 text-xl font-bold text-brand-900">Applications — {job.title}</h2>
+    <section ref={sectionRef} className="mt-8 scroll-mt-4" aria-labelledby="apps-h">
+      <h2 id="apps-h" ref={headingRef} tabIndex={-1} className="mb-3 text-xl font-bold text-brand-900 focus:outline-none">Applications — {job.title}</h2>
       {loading && <Spinner label="Loading applications…" />}
       {error && <ErrorBox error={error} onRetry={reload} />}
       {apps && apps.length === 0 && <Empty title="No applications yet">Applications for this job will appear here.</Empty>}
@@ -27,10 +38,10 @@ function ApplicationsPanel({ job }) {
           {apps.map((a) => (
             <li key={a.id} className="card">
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
+                <div className="min-w-0">
                   {/* React escapes all text: resume content can never execute as HTML */}
-                  <p className="font-semibold text-slate-900">{a.applicant_name}</p>
-                  <p className="text-sm text-slate-500">{a.applicant_email}</p>
+                  <p className="break-words font-semibold text-slate-900">{a.applicant_name}</p>
+                  <p className="break-all text-sm text-slate-500">{a.applicant_email}</p>
                 </div>
                 <span className="rounded-full bg-brand-900 px-3 py-1 text-sm font-bold text-white" aria-label={`Match score ${a.match_score} percent`}>{a.match_score}%</span>
               </div>
@@ -73,8 +84,8 @@ export default function AdminDashboardPage() {
 
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold text-brand-900">Staff dashboard</h1>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">Staff dashboard</h1>
         <button className="btn-primary" onClick={() => { setNotice(''); setEditor('new') }}><Plus className="h-4 w-4" aria-hidden="true" /> New job</button>
       </div>
       <Notice onClose={() => setNotice('')}>{notice}</Notice>
@@ -95,15 +106,15 @@ export default function AdminDashboardPage() {
         <ul className="space-y-3">
           {jobs.data.map((job) => (
             <li key={job.id} className={`card ${selected?.id === job.id ? 'ring-2 ring-brand-500' : ''}`}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
                   <h3 className="font-semibold text-slate-900">{job.title}
                     <span className={`ml-2 rounded-full px-2 py-0.5 text-xs font-medium ${job.status === 'open' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}>{job.status}</span>
                   </h3>
                   <p className="text-sm text-slate-500">{job.track}</p>
                   <ul className="mt-2 flex flex-wrap gap-1.5" aria-label={`Skills for ${job.title}`}>{job.required_skills.map((s) => <li key={s}><SkillChip>{s}</SkillChip></li>)}</ul>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 [&>button]:flex-1 sm:[&>button]:flex-none">
                   <button className="btn-secondary" onClick={() => { setNotice(''); setEditor(job) }} aria-label={`Edit ${job.title}`}><Pencil className="h-4 w-4" aria-hidden="true" /> Edit</button>
                   <button className="btn-primary" onClick={() => setSelected(job)} aria-label={`View applications for ${job.title}`}><Users className="h-4 w-4" aria-hidden="true" /> Applications</button>
                 </div>

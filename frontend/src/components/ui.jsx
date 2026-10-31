@@ -65,7 +65,7 @@ export function ConfirmDialog({ title, message, confirmLabel = 'Confirm', danger
       <div role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
         <h2 id="confirm-title" className="text-lg font-semibold">{title}</h2>
         <p className="mt-2 text-sm text-slate-600">{message}</p>
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button className="btn-secondary" onClick={onCancel}>Cancel</button>
           <button className={danger ? 'btn-danger' : 'btn-primary'} onClick={onConfirm} autoFocus>{confirmLabel}</button>
         </div>

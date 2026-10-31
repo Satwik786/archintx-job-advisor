@@ -36,7 +36,7 @@ export default function ResultPage() {
         <ScoreRing score={r.match_score} />
         <div>
           <p className="text-sm font-medium text-slate-500">Application submitted for</p>
-          <h1 className="text-2xl font-bold text-brand-900">{r.job_title}</h1>
+          <h1 className="break-words text-2xl font-bold text-brand-900">{r.job_title}</h1>
           <p className="mt-2 text-slate-600">
             You match <strong>{r.matched_skills.length}</strong> of <strong>{r.matched_skills.length + r.missing_skills.length}</strong> required skills.
           </p>

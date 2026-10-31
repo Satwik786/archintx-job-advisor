@@ -65,8 +65,8 @@ export default function JobFormModal({ job, onClose, onSaved }) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4" onKeyDown={(e) => e.key === 'Escape' && onClose()}>
-      <form role="dialog" aria-modal="true" aria-labelledby="job-form-title" onSubmit={onSubmit} noValidate className="my-8 w-full max-w-lg space-y-5 rounded-xl bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-3 sm:p-4" onKeyDown={(e) => e.key === 'Escape' && onClose()}>
+      <form role="dialog" aria-modal="true" aria-labelledby="job-form-title" onSubmit={onSubmit} noValidate className="my-4 w-full max-w-lg space-y-5 rounded-xl bg-white p-4 shadow-xl sm:my-8 sm:p-6">
         <div className="flex items-start justify-between">
           <h2 id="job-form-title" className="text-xl font-bold text-brand-900">{editing ? 'Edit job' : 'Create job'}</h2>
           <button type="button" aria-label="Close" onClick={onClose} className="rounded p-1 hover:bg-slate-100"><X className="h-5 w-5" /></button>
@@ -85,7 +85,7 @@ export default function JobFormModal({ job, onClose, onSaved }) {
             <option value="closed">Closed</option>
           </select>
         </Field>
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
           <button type="submit" className="btn-primary" disabled={busy}>{busy ? 'Saving…' : editing ? 'Save changes' : 'Create job'}</button>
         </div>

@@ -53,7 +53,7 @@ export default function ApplyPage() {
     <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-5">
       <aside className="card h-fit lg:col-span-2">
         <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm text-brand-700 hover:underline"><ArrowLeft className="h-4 w-4" aria-hidden="true" /> All jobs</Link>
-        <h1 className="text-2xl font-bold text-brand-900">{j.title}</h1>
+        <h1 className="break-words text-2xl font-bold text-brand-900">{j.title}</h1>
         <p className="text-sm text-slate-500">{j.track}</p>
         <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Required skills</p>
         <ul className="mt-2 flex flex-wrap gap-2">{j.required_skills.map((s) => <li key={s}><SkillChip>{s}</SkillChip></li>)}</ul>
