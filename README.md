@@ -47,8 +47,7 @@ Python 3.11+ (3.12 used), Node 18+ (22 used), Git, and a PostgreSQL database (op
 ```bash
 # Backend
 cd backend
-python -m venv .venv
-.venv\Scripts\Activate.ps1     # Windows: .venv\Scripts\activate
+python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env        # then edit: set JWT_SECRET, SEED_STAFF_PASSWORD, DATABASE_URL (or delete it to use SQLite)
 python -m app.database.seed # creates tables, 5 jobs, 1 staff account
@@ -146,7 +145,7 @@ Order: **database -> backend -> frontend -> update CORS**.
 - Jobs cannot be deleted (closed instead); applications cannot be deleted.
 - Bearer token in `sessionStorage` (trade-off explained above).
 - Schema is created with `create_all`, not Alembic; schema changes need manual migration.
-- Render free tier cold starts.
+- Render free-tier cold starts: an idle backend takes up to ~50 s to wake. The frontend shows a "Waking up the server" card after 4 s and automatically retries GET requests (never POSTs). An uptime monitor pinging `/health` every 5 minutes (e.g. UptimeRobot) keeps the backend awake during evaluation.
 
 ## Screenshots to capture
 Save in `docs/screenshots/` and upload to the submission folder:

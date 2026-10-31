@@ -4,6 +4,7 @@ import { LogIn } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { validateLogin } from '../utils/validation'
 import { ErrorBox, Field } from '../components/ui'
+import { useSlow, WakeUp } from '../components/WakeUp'
 
 export default function AdminLoginPage() {
   const { login, isAuthenticated, notice } = useAuth()
@@ -13,6 +14,7 @@ export default function AdminLoginPage() {
   const [errors, setErrors] = useState({})
   const [apiError, setApiError] = useState(null)
   const [busy, setBusy] = useState(false)
+  const slowLogin = useSlow(busy, 6000)
 
   if (isAuthenticated) return <Navigate to="/admin" replace />
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
@@ -50,6 +52,7 @@ export default function AdminLoginPage() {
           <input id="password" type="password" autoComplete="current-password" className="input" value={form.password} onChange={set('password')} aria-invalid={!!errors.password} />
         </Field>
         <button type="submit" className="btn-primary w-full" disabled={busy}><LogIn className="h-4 w-4" aria-hidden="true" /> {busy ? 'Signing in…' : 'Sign in'}</button>
+        {slowLogin && <WakeUp />}
       </form>
     </div>
   )

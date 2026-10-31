@@ -5,6 +5,7 @@ import { api } from '../services/api'
 import { useAsync } from '../hooks/useAsync'
 import { validateApplication } from '../utils/validation'
 import { ErrorBox, Field, SkillChip, Spinner } from '../components/ui'
+import { useSlow, WakeUp } from '../components/WakeUp'
 
 export default function ApplyPage() {
   const { jobId } = useParams()
@@ -15,6 +16,7 @@ export default function ApplyPage() {
   const [errors, setErrors] = useState({})
   const [submitError, setSubmitError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const slowSubmit = useSlow(submitting, 6000)
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
   const invalid = (id, key) => ({ id, 'aria-invalid': !!errors[key], 'aria-describedby': errors[key] ? `${id}-error` : undefined })
@@ -79,6 +81,7 @@ export default function ApplyPage() {
         <button type="submit" className="btn-primary w-full sm:w-auto" disabled={submitting}>
           <Send className="h-4 w-4" aria-hidden="true" /> {submitting ? 'Analysing your resume…' : 'Submit application'}
         </button>
+        {slowSubmit && <WakeUp />}
       </form>
     </div>
   )

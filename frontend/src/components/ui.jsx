@@ -1,10 +1,15 @@
 import { AlertCircle, CheckCircle2, Inbox, Loader2, X } from 'lucide-react'
+import { useSlow, WakeUp } from './WakeUp'
 
 export function Spinner({ label = 'Loading…' }) {
+  const slow = useSlow(true, 4000) // after 4s, explain the (free-hosting) cold start
   return (
-    <div role="status" className="flex items-center justify-center gap-2 py-16 text-slate-500">
-      <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> <span>{label}</span>
-    </div>
+    <>
+      <div role="status" className={`flex items-center justify-center gap-2 text-slate-500 ${slow ? 'pb-4 pt-12' : 'py-16'}`}>
+        <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> <span>{label}</span>
+      </div>
+      {slow && <WakeUp />}
+    </>
   )
 }
 

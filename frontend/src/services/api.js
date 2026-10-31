@@ -11,6 +11,12 @@ export class ApiError extends Error {
 
 // AuthProvider registers these so api.js can read the token and react to expiry.
 let authHooks = { getToken: () => null, onExpire: () => {} }
+// Free hosting sleeps when idle. GETs are safe to repeat, so retry them while the server wakes.
+// POST/PUT are never retried (no duplicate applications).
+export const retryConfig = { delays: [2000, 4000, 6000] }
+const TRANSIENT = new Set([502, 503, 504])
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
 export const setAuthHooks = (h) => { authHooks = h }
 
 function parseError(status, data) {
@@ -27,8 +33,8 @@ function parseError(status, data) {
   return new ApiError(status, 'Something went wrong. Please try again.')
 }
 
-async function request(path, { method = 'GET', body, auth = false } = {}) {
-  if (!BASE) throw new ApiError(0, 'API URL is not configured (set VITE_API_URL).')
+async function attempt(path, { method = 'GET', body, auth = false } = {}) {
+  if (!BASE) throw new ApiError(-1, 'API URL is not configured (set VITE_API_URL).')
   const headers = {}
   if (body !== undefined) headers['Content-Type'] = 'application/json'
   if (auth) headers.Authorization = `Bearer ${authHooks.getToken() ?? ''}`
@@ -45,6 +51,19 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
     throw new ApiError(401, 'Your session has expired. Please sign in again.')
   }
   throw parseError(res.status, data)
+}
+
+async function request(path, opts = {}) {
+  const delays = (opts.method || 'GET') === 'GET' ? retryConfig.delays : []
+  for (let i = 0; ; i++) {
+    try {
+      return await attempt(path, opts)
+    } catch (err) {
+      const transient = err.status === 0 || TRANSIENT.has(err.status)
+      if (!transient || i >= delays.length) throw err
+      await sleep(delays[i])
+    }
+  }
 }
 
 export const api = {
